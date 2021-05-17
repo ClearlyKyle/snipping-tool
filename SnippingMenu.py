@@ -22,7 +22,7 @@ class Menu(QMainWindow):
         self.lastPoint = QPoint()
         self.total_snips = 0
         self.title = Menu.default_title
-        
+
         # New snip
         new_snip_action = QAction('New', self)
         new_snip_action.setShortcut('Ctrl+N')
@@ -35,7 +35,8 @@ class Menu(QMainWindow):
         for color in Menu.COLORS:
             colorMenu.addAction(color)
         brush_color_button.setMenu(colorMenu)
-        colorMenu.triggered.connect(lambda action: change_brush_color(action.text()))
+        colorMenu.triggered.connect(
+            lambda action: change_brush_color(action.text()))
 
         # Brush Size
         brush_size_button = QPushButton("Brush Size")
@@ -43,7 +44,8 @@ class Menu(QMainWindow):
         for size in Menu.SIZES:
             sizeMenu.addAction("{0}px".format(str(size)))
         brush_size_button.setMenu(sizeMenu)
-        sizeMenu.triggered.connect(lambda action: change_brush_size(action.text()))
+        sizeMenu.triggered.connect(
+            lambda action: change_brush_size(action.text()))
 
         # Save
         save_action = QAction('Save', self)
@@ -57,12 +59,19 @@ class Menu(QMainWindow):
         exit_window.setStatusTip('Exit application')
         exit_window.triggered.connect(self.close)
 
+        # Anki
+        anki_action = QAction('Anki', self)
+        anki_action.setShortcut('Ctrl+A')
+        anki_action.setStatusTip('Send to Anki')
+        anki_action.triggered.connect(self.sendToAnki)
+
         self.toolbar = self.addToolBar('Exit')
         self.toolbar.addAction(new_snip_action)
         self.toolbar.addAction(save_action)
         self.toolbar.addWidget(brush_color_button)
         self.toolbar.addWidget(brush_size_button)
         self.toolbar.addAction(exit_window)
+        self.toolbar.addAction(anki_action)
 
         self.snippingTool = SnippingTool.SnippingWidget()
         self.setGeometry(*start_position)
@@ -75,14 +84,16 @@ class Menu(QMainWindow):
             self.image = QPixmap("background.PNG")
             self.change_and_set_title(Menu.default_title)
 
-        self.resize(self.image.width(), self.image.height() + self.toolbar.height())
+        self.resize(self.image.width(), self.image.height() +
+                    self.toolbar.height())
         self.show()
 
         def change_brush_color(new_color):
             self.brushColor = eval("Qt.{0}".format(new_color.lower()))
 
         def change_brush_size(new_size):
-            self.brushSize = int(''.join(filter(lambda x: x.isdigit(), new_size)))
+            self.brushSize = int(
+                ''.join(filter(lambda x: x.isdigit(), new_size)))
 
     # snippingTool.start() will open a new window, so if this is the first snip, close the first window.
     def new_image_window(self):
@@ -92,7 +103,8 @@ class Menu(QMainWindow):
         self.snippingTool.start()
 
     def save_file(self):
-        file_path, name = QFileDialog.getSaveFileName(self, "Save file", self.title, "PNG Image file (*.png)")
+        file_path, name = QFileDialog.getSaveFileName(
+            self, "Save file", self.title, "PNG Image file (*.png)")
         if file_path:
             self.image.save(file_path)
             self.change_and_set_title(basename(file_path))
@@ -104,7 +116,8 @@ class Menu(QMainWindow):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        rect = QRect(0,  self.toolbar.height(), self.image.width(), self.image.height())
+        rect = QRect(0,  self.toolbar.height(),
+                     self.image.width(), self.image.height())
         painter.drawPixmap(rect, self.image)
 
     def mousePressEvent(self, event):
@@ -115,8 +128,10 @@ class Menu(QMainWindow):
     def mouseMoveEvent(self, event):
         if event.buttons() and Qt.LeftButton and self.drawing:
             painter = QPainter(self.image)
-            painter.setPen(QPen(self.brushColor, self.brushSize, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            painter.drawLine(self.lastPoint, event.pos() - QPoint(0, self.toolbar.height()))
+            painter.setPen(QPen(self.brushColor, self.brushSize,
+                           Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.drawLine(self.lastPoint, event.pos() -
+                             QPoint(0, self.toolbar.height()))
             self.lastPoint = event.pos() - QPoint(0, self.toolbar.height())
             self.update()
 
@@ -127,6 +142,10 @@ class Menu(QMainWindow):
     # TODO exit application when we exit all windows
     def closeEvent(self, event):
         event.accept()
+
+	# Sending image to anki
+    def sendToAnki(self):
+        print("Sending to Anki")
 
     @staticmethod
     def convert_numpy_img_to_qpixmap(np_img):
