@@ -85,9 +85,9 @@ class SnippingWidget(QtWidgets.QWidget):
 		QtWidgets.QApplication.processEvents()
 		img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
 
-		# Base64 Image data for Anki
-		ret, dst_data = cv2.imencode ('.jpg', img)
-		anki_image_data = base64.b64encode(dst_data)
+		# Base64 Image data for Anki (https://stackoverflow.com/a/53622883)
+		ret, dst_data = cv2.imencode('.png', img)
+		anki_image_data = base64.b64encode(dst_data).decode('utf-8')
 
 		# add to the snips list the object that opens a window of the image
 		SnippingMenu.Menu(img, SnippingWidget.num_snip, (x1, y1, x2, y2), anki_image_data)
