@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QAction, QMainWindow, QApplication, QPushButton, QMe
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QPen
 
 import SnippingTool
+import AnkiConnect
 
 
 class Menu(QMainWindow):
@@ -13,7 +14,7 @@ class Menu(QMainWindow):
     default_title = "Snipping Tool"
 
     # numpy_image is the desired image we want to display given as a numpy array.
-    def __init__(self, numpy_image=None, snip_number=None, start_position=(300, 300, 350, 250)):
+    def __init__(self, numpy_image=None, snip_number=None, start_position=(300, 300, 350, 250), anki_image_data=""):
         super().__init__()
 
         self.drawing = False
@@ -129,7 +130,7 @@ class Menu(QMainWindow):
         if event.buttons() and Qt.LeftButton and self.drawing:
             painter = QPainter(self.image)
             painter.setPen(QPen(self.brushColor, self.brushSize,
-                           Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+                                Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
             painter.drawLine(self.lastPoint, event.pos() -
                              QPoint(0, self.toolbar.height()))
             self.lastPoint = event.pos() - QPoint(0, self.toolbar.height())
@@ -143,8 +144,18 @@ class Menu(QMainWindow):
     def closeEvent(self, event):
         event.accept()
 
-	# Sending image to anki
+    # Sending image to anki
     def sendToAnki(self):
+        '''
+        {
+			"action": "storeMediaFile",
+			"version": 6,
+			"params": {
+				"filename": "_hello.txt",
+				"data": "SGVsbG8sIHdvcmxkIQ=="
+			}
+		}
+        '''
         print("Sending to Anki")
 
     @staticmethod
