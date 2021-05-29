@@ -159,10 +159,25 @@ class Menu(QMainWindow):
 		'''
 		print("Sending to Anki")
 		anki = AnkiConnect.AnkiConnect()
-		test = self.anki_image_data
+		deck_name = 'TESTING::animebook'
+		model_name = 'Youtube_Screenshot_to_Anki'
+
 		result = anki.invoke('storeMediaFile', filename="screengrabtool.png", data=self.anki_image_data)
 		print(result)
 
+		note = {
+			'deckName': deck_name,
+			'modelName': model_name,
+			'fields': {
+				'Screenshot': '<img src="' + self.anki_image_data + '" />',
+				},
+			'options': {
+				'allowDuplicate': False
+			}
+		}
+		result = anki.invoke('addNote', note=note)
+		print(result)
+		print()
 
 	@staticmethod
 	def convert_numpy_img_to_qpixmap(np_img):
