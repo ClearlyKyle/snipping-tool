@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import base64
 from PIL import ImageGrab
+
 from PyQt5 import QtWidgets, QtCore, QtGui
 import SnippingMenu
 from PyQt5.QtCore import Qt

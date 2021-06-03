@@ -1,5 +1,6 @@
 import json
 import urllib.request
+import urllib3
 
 class AnkiConnect:
 	def request(self, action, **params):
@@ -7,19 +8,24 @@ class AnkiConnect:
 
 
 	def invoke(self, action, **params):
+		http = urllib3.PoolManager()
 		requestJson = json.dumps(self.request(action, **params)).encode('utf-8')
 		try:
-			response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
-		except urllib.error.URLError:
-			print("Error! Make sure the Anki application is running and the \"Ankiconect\" pluging is installed")
+			response = http.request('POST', 'http://127.0.0.1:8765', body=requestJson)
+			resp_dict = json.loads(response.data.decode('utf-8'))
+			return resp_dict
+
+		except urllib3.exceptions.HTTPError as e:
+			print('Request failed:', e.reason)
+			print("Make sure the Anki application is running and the \"Ankiconect\" pluging is installed")
 			return
 
-		if len(response) != 2:
+		if len(resp_dict) != 2:
 			raise Exception('response has an unexpected number of fields')
-		if 'error' not in response:
+		if 'error' not in resp_dict:
 			raise Exception('response is missing required error field')
-		if 'result' not in response:
+		if 'result' not in resp_dict:
 			raise Exception('response is missing required result field')
-		if response['error'] is not None:
-			raise Exception(response['error'])
-		return response
+		if resp_dict['error'] is not None:
+			raise Exception(resp_dict['error'])
+		return resp_dict

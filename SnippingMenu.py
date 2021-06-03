@@ -161,15 +161,16 @@ class Menu(QMainWindow):
 		anki = AnkiConnect.AnkiConnect()
 		deck_name = 'TESTING::animebook'
 		model_name = 'Youtube_Screenshot_to_Anki'
+		filename = "screengrabtool.png"
 
-		result = anki.invoke('storeMediaFile', filename="screengrabtool.png", data=self.anki_image_data)
+		result = anki.invoke('storeMediaFile', filename=filename, data=self.anki_image_data)
 		print(result)
 
 		note = {
 			'deckName': deck_name,
 			'modelName': model_name,
 			'fields': {
-				'Screenshot': '<img src="' + self.anki_image_data + '" />',
+				'Screenshot': '<img src="' + filename + '" />',
 				},
 			'options': {
 				'allowDuplicate': False
