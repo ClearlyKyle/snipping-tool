@@ -83,16 +83,16 @@ class MyWidget(QtWidgets.QWidget):
 		# cv2.destroyAllWindows()
 
 
-if __name__ == '__main__':
-	import sys
-	print("Python version")
-	print(sys.version)
-	print("Version info.")
-	print(sys.version_info)
-	print()
+#if __name__ == '__main__':
+#	import sys
+#	print("Python version")
+#	print(sys.version)
+#	print("Version info.")
+#	print(sys.version_info)
+#	print()
 
-	app = QtWidgets.QApplication(sys.argv)
-	window = MyWidget()
-	window.show()
-	app.aboutToQuit.connect(app.deleteLater)
-	sys.exit(app.exec_())
+#	app = QtWidgets.QApplication(sys.argv)
+#	window = MyWidget()
+#	window.show()
+#	app.aboutToQuit.connect(app.deleteLater)
+#	sys.exit(app.exec_())
