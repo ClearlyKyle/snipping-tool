@@ -1,5 +1,5 @@
 ## Snipping Tool in Python
-A program which works like the snipping tool in Windows.
+A program which works like the snipping tool in Windows. With added support for Anki
 
 ### Regular Snipping Tool (SnippingTool.py)
 Link to the video
