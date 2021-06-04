@@ -1,6 +1,4 @@
-
-import sys
-from PyQt5.QtWidgets import QApplication, QDialog, QGroupBox, QFormLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QGroupBox, QFormLayout, QDialogButtonBox, QMessageBox
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QSettings
 
@@ -17,8 +15,9 @@ class AnkiSettingsWindow(QDialog):
         self.Anki = ak.AnkiConnect()
         self.CreateFormGroupBox()
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Cancel)
-        buttonBox.addButton("save", QDialogButtonBox.ActionRole)
+        buttonBox = QDialogButtonBox()
+        buttonBox.addButton("Save", QDialogButtonBox.AcceptRole)
+        buttonBox.addButton("Close", QDialogButtonBox.RejectRole)
         buttonBox.accepted.connect(self.SaveSettings)
         buttonBox.rejected.connect(self.reject)
 
@@ -39,11 +38,18 @@ class AnkiSettingsWindow(QDialog):
             if self.settings.value("anki url") is not None:
                 self.anki_url.setText(self.settings.value("anki url"))
 
+            if self.settings.value("clear image") == 'true':
+                self.clear_on_sucess.setChecked(True)
+                print("Clear on Sucess - True")
+            else:
+                self.clear_on_sucess.setChecked(False)
+                print("Clear on Sucess - False")
+
         except ValueError():
             print("Error Loading Settings from \"QSettings\"")
             return
 
-        self.show()
+        # self.show()
 
     def CreateFormGroupBox(self):
         self.formGroupBox = QGroupBox("Settings")
@@ -70,27 +76,25 @@ class AnkiSettingsWindow(QDialog):
         # self.fields_comboBox.addItems(["test1", "test2"])
         layout.addRow(QtWidgets.QLabel("Field:"), self.fields_comboBox)
         self.model_comboBox.currentTextChanged.connect(self.UpdateFields)
-        self.UpdateFields()
 
         # Check Boxes
         hbox = QtWidgets.QHBoxLayout()
-        self.subdirectory_checkbox = QtWidgets.QCheckBox("Clear on Sucess")
-        self.subdirectory_checkbox.setChecked(False)
-        self.subdirectory_checkbox.toggled.connect(self.ClearImageOnSucess)
-        hbox.addWidget(self.subdirectory_checkbox, 0, Qt.AlignCenter)
+        self.clear_on_sucess = QtWidgets.QCheckBox("Clear on Sucess")
+        hbox.addWidget(self.clear_on_sucess, 0, Qt.AlignLeft)
         layout.addRow(hbox)
 
         self.formGroupBox.setLayout(layout)
 
     def GetDeckNames(self):
-        return self.Anki.invoke("deckNames")
+        return self.Anki.invoke("deckNames")['result']
 
     def GetModelNames(self):
-        return self.Anki.invoke("modelNames")
+        return self.Anki.invoke("modelNames")['result']
 
     def UpdateFields(self):
         selected_name = self.model_comboBox.currentText()
-        self.field_names = self.Anki.invoke("modelFieldNames", modelName=selected_name)
+        self.field_names = self.Anki.invoke("modelFieldNames", modelName=selected_name)['result']
+        self.fields_comboBox.clear()
         self.fields_comboBox.addItems(self.field_names)
 
     def ClearImageOnSucess(self):
@@ -102,6 +106,10 @@ class AnkiSettingsWindow(QDialog):
         self.settings.setValue("model name", self.model_comboBox.currentText())
         self.settings.setValue("field name", self.fields_comboBox.currentText())
         self.settings.setValue("anki url", self.anki_url.text())
+        self.settings.setValue("clear image", self.clear_on_sucess.isChecked())
+
+        msgBox = QMessageBox(QMessageBox.Information, "Sucess", "Settings saved!", QMessageBox.Ok)
+        msgBox.exec()
 
     def SetComboBoxText(self, combo, text):
         index = combo.findText(text, Qt.MatchFixedString)
@@ -115,8 +123,11 @@ class AnkiSettingsWindow(QDialog):
 
         return [deck_name, model_name, field_name]
 
+    def GetClearState(self):
+        return bool(self.settings.value("clear image"))
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    dialog = AnkiSettingsWindow()
-    dialog.exec_()
+
+#if __name__ == '__main__':
+#    app = QApplication(sys.argv)
+#    dialog = AnkiSettingsWindow()
+#    dialog.exec_()

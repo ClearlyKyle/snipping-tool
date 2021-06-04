@@ -47,6 +47,10 @@ class MyWidget(QtWidgets.QWidget):
         x2 = max(self.begin.x(), self.end.x())
         y2 = max(self.begin.y(), self.end.y())
 
+        if x1 == x2 and y1 == y2:
+            print("Bad Image")
+            return
+
         img = ImageGrab.grab(bbox=(x1, y1, x2, y2))
         img.save('capture.png')
         img = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2RGB)
